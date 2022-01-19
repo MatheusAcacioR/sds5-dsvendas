@@ -4,7 +4,7 @@
 
 ## Criando o frontend
 
-- No diretorio raiz do projeto dentro odo terminal:
+- No diretorio raiz do projeto dentro do terminal:
 
 ```bash
 npx create-react-app frontend --template typescript
