@@ -29,4 +29,3 @@ npx create-react-app frontend --template typescript
 - Renomeio para `backend` .
 
 
-minuto 25:55
