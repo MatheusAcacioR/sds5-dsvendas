@@ -36,3 +36,62 @@ Ficando assim essa parte:
 ```
 
 - Nos arquivos `App.tsx` e `index.tsx` remover as importações que não são mais necessárias
+
+## Estilizando o Frontend
+
+- Instalar a biblioteca do `bootstrap` .
+
+```
+yarn add bootstrap
+```
+
+No arquivo `index.tsx` fazer a importação do bootstrap .
+
+```tsx
+import 'bootstrap/dist/css/bootstrap.css';
+```
+
+No diretorio "src" criar o direotorio "assets" e dentro dele criar o diretorio "css" .
+
+No direotorio "css" criar o arquivo `styles.css` e inserir os códigos: 
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+:root {
+    --color-primary: #FF8400;
+}
+
+html, body {
+    height: 100%;
+    font-family: "Ubuntu", sans-serif;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+.text-primary {
+    color: var(--color-primary) !important;
+}
+```
+
+No arquivo index.tsx fazer a importação do css. 
+
+```tsx
+import 'assets/css/styles.css';
+```
