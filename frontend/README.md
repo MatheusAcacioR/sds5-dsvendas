@@ -177,7 +177,7 @@ export default App;
 
 - Repetir o processo de criação do componente Navbar apenas modificando o nome para DataTable e alterando os códigos
 
-- Adicionar o Footer depois do conteudo principal no arquivo `App.tsx`
+- Adicionar o DataTable depois do conteudo principal no arquivo `App.tsx`
 
 ```tsx
 import DataTable from "components/DataTable";
@@ -198,4 +198,152 @@ function App() {
 }
 
 export default App;
+```
+
+## Adicionando gráficos com Apex Charts
+
+- No termnial, instalar a biblioteca do Apex Charts
+
+```bash
+yarn add apexcharts
+yarn add react-apexcharts
+```
+## Criar mais componentes para a página
+
+### Componente BarChart
+
+- Após criar o corpo pricipal de um componente React, adicionar o `apexcharts` no componente .
+
+- Antes do `return()` inserir as funçoes do ApexCharts
+
+```jsx
+const options = {
+    plotOptions: {
+        bar: {
+            horizontal: true,
+        }
+    },
+};
+
+const mockData = {
+    labels: {
+        categories: ['Anakin', 'Barry Allen', 'Kal-El', 'Logan', 'Padmé']
+    },
+    series: [
+        {
+            name: "% Sucesso",
+            data: [43.6, 67.1, 67.7, 45.6, 71.1]                   
+        }
+    ]
+};
+```
+- Adicionar no `return()` o componente Charts passando os parametros de criação dos gráficos .
+
+```jsx
+import Chart from "react-apexcharts";
+
+function BarChart() {
+    // Criando a função de plotagem dos gráficos
+    const options = {
+        plotOptions: {
+            bar: {
+                horizontal: true,
+            }
+        },
+    };
+
+    // Criando função com os dados ficticios
+    const mockData = {
+        labels: {
+            categories: ['Anakin', 'Barry Allen', 'Kal-El', 'Logan', 'Padmé']
+        },
+        series: [
+            {
+                name: "% Sucesso",
+                data: [43.6, 67.1, 67.7, 45.6, 71.1]
+            }
+        ]
+    };
+
+    return (
+        <Chart 
+            options={{...options, xaxis: mockData.labels}}
+            series={mockData.series}
+            type="bar"
+            height="240"
+        />
+    );
+}
+
+export default BarChart;
+```
+
+-No `App.tsx` criar uma estrutura html para colocar o gráfico
+
+- Dentro da div container criar duas divs com seus respectivos nomes, e dentro da ultima div criada, adicionar o componente BarChart .
+
+```tsx
+import BarChart from "components/BarChart";
+import DataTable from "components/DataTable";
+import Footer from "components/Footer";
+import NavBar from "components/NavBar";
+
+function App() {
+  return (
+    <>
+      <NavBar />
+      <div className="container">
+        <h1 className="text-primary py-3">Dashboard de Vendas</h1>
+        <div className="row px-3">
+          <div className="col-sm-6">
+            <h5 className="text-center text-secondary">Taxa de sucesso (%)</h5>
+            <BarChart />
+          </div>
+          <div className="col-sm-6">
+            <h5>Todas as vendas</h5>
+            <BarChart />
+          </div>
+        </div>
+        <DataTable />
+      </div>
+      <Footer />
+    </>
+  );
+}
+
+export default App;
+```
+
+### Componente DonutChart
+
+- Repetir o mesmo processo do BarChart apenas alterando os paramentros de plotagem do gráfico .
+
+```tsx
+import Chart from "react-apexcharts";
+
+function DonutChart() {
+    // Criando a função de plotagem dos gráficos
+    const options = {
+        legend: {
+            show: true
+        }
+    }
+
+    // Criando função com os dados ficticios
+    const mockData = {
+        series: [477138, 499928, 444867, 220426, 473088],
+        labels: ['Anakin', 'Barry Allen', 'Kal-El', 'Logan', 'Padmé']
+    }
+
+    return (
+        <Chart 
+            options={{...options, labels: mockData.labels}}
+            series={mockData.series}
+            type="donut"
+            height="240"
+        />
+    );
+}
+
+export default DonutChart;
 ```
