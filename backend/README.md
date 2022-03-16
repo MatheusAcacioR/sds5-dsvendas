@@ -814,3 +814,165 @@ public class SaleService {
 	}
 }
 ```
+
+## Busca agrupada de vendedores (group by)
+
+- Criao um DTO para soma das vendas, dando o nome de `SaleSumDTO`
+
+```java
+package com.sds.sds5.dto;
+
+import java.io.Serializable;
+
+import com.sds.sds5.entities.Seller;
+
+public class SaleSumDTO implements Serializable{
+	private static final long serialVersionUID = 1L;
+	private String sellerName;
+	private Double sum;
+	
+	public SaleSumDTO() {
+	}
+
+	public SaleSumDTO(Seller seller, Double sum) {
+		this.sellerName = seller.getName();
+		this.sum = sum;
+	}
+
+	public String getSellerName() {
+		return sellerName;
+	}
+
+	public void setSellerName(String sellerName) {
+		this.sellerName = sellerName;
+	}
+
+	public Double getSum() {
+		return sum;
+	}
+
+	public void setSum(Double sum) {
+		this.sum = sum;
+	}	
+}
+```
+
+- No SaleRepository inserir a notação da busca agrupada 
+
+```java
+package com.sds.sds5.repositories;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import com.sds.sds5.dto.SaleSumDTO;
+import com.sds.sds5.entities.Sale;
+
+public interface SaleRepository extends JpaRepository<Sale, Long>{
+	// Notação para fazer uma busca de agrupamento somando as vendas de cada vendedor
+	@Query("SELECT new com.sds.sds5.dto.SaleSumDTO(obj.seller, SUM(obj.amount)) " 
+			+ " FROM Sale AS obj GROUP BY obj.seller")
+	List<SaleSumDTO> amountGroupedBySeller();
+}
+
+```
+- Alterar o service passando a notação nele tambem
+
+```java
+@Transactional(readOnly = true)
+public List<SaleSumDTO> amountGroupedBySeller() {
+	return repository.amountGroupedBySeller();
+}
+```
+- Alterar o controller 
+
+```java
+@GetMapping(value = "/sum-by-seller")
+public ResponseEntity<List<SaleSumDTO>> amountGroupedBySeller() {
+	List<SaleSumDTO> list = service.amountGroupedBySeller();
+	return ResponseEntity.ok(list);
+}
+```
+
+## Porcentagem de sucesso de vendas dos vendedores
+
+- DTO para sucesso de vendas 
+
+```java
+package com.sds.sds5.dto;
+
+import java.io.Serializable;
+
+import com.sds.sds5.entities.Seller;
+
+public class SaleSuccessDTO implements Serializable{
+	private static final long serialVersionUID = 1L;
+	private String sellerName;
+	private Long visited;
+	private Long deals;
+	
+	public SaleSuccessDTO() {
+	}
+
+	public SaleSuccessDTO(Seller seller, Long visited, Long deals) {
+		sellerName = seller.getName();
+		this.visited = visited;
+		this.deals = deals;
+	}
+
+	public String getSellerName() {
+		return sellerName;
+	}
+
+	public void setSellerName(String sellerName) {
+		this.sellerName = sellerName;
+	}
+
+	public Long getVisited() {
+		return visited;
+	}
+
+	public void setVisited(Long visited) {
+		this.visited = visited;
+	}
+
+	public Long getDeals() {
+		return deals;
+	}
+
+	public void setDeals(Long deals) {
+		this.deals = deals;
+	}
+	
+}
+```
+
+- No SaleRepository inserir a notação de taxa de sucesso
+
+```java
+// Notação para fazer uma busca da soma das visitas e soma dos negocios fechados de cada vendedor
+@Query("SELECT new com.sds.sds5.dto.SaleSuccessDTO(obj.seller, SUM(obj.visited), SUM(obj.deals)) " 
+		+ " FROM Sale AS obj GROUP BY obj.seller")
+List<SaleSuccessDTO> successGroupedBySeller();
+```
+
+- Alterar o service passando a notação nele tambem
+
+```java
+@Transactional(readOnly = true)
+public List<SaleSuccessDTO> successGroupedBySeller() {
+	return repository.successGroupedBySeller();
+}
+```
+
+- Alterar o controller 
+
+```java
+@GetMapping(value = "/success-by-seller")
+public ResponseEntity<List<SaleSuccessDTO>> successGroupedBySeller() {
+	List<SaleSuccessDTO> list = service.successGroupedBySeller();
+	return ResponseEntity.ok(list);
+}
+```
