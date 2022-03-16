@@ -1012,3 +1012,18 @@ spring.jpa.open-in-view=false
 ```
 java.runtime.version=11
 ```
+## Conexão com Heroku
+
+- Apos criar o app no site do Heroku, criar a variavel de ambiente APP_PROFILE=prod
+
+- Usar as credencias do banco e conecta-la com o software cliente SQL que esta sendo utilizado e rodar os comandos SQL para criação e população do banco
+
+- Conectar projeto do git com o Heroku 
+
+```bash
+heroku -v
+heroku login
+heroku git:remote -a <nome-do-app>
+git remote -v
+git subtree push --prefix backend heroku main
+```
