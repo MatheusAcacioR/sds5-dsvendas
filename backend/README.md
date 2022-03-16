@@ -976,3 +976,39 @@ public ResponseEntity<List<SaleSuccessDTO>> successGroupedBySeller() {
 	return ResponseEntity.ok(list);
 }
 ```
+
+## Utilizando banco postgres
+
+- Criar um novo perfil do `application.properties` porem agora com o nome de `application-dev.properties` e inserir as configurações
+
+```
+#spring.jpa.properties.javax.persistence.schema-generation.create-source=metadata
+#spring.jpa.properties.javax.persistence.schema-generation.scripts.action=create
+#spring.jpa.properties.javax.persistence.schema-generation.scripts.create-target=create.sql
+#spring.jpa.properties.hibernate.hbm2ddl.delimiter=;
+
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
+
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.hibernate.ddl-auto=none
+
+```
+
+- Criar o perfil de produção que sera usado no Heroku 
+
+```
+spring.datasource.url=${DATABASE_URL}
+```
+> application.properties
+
+```
+spring.profiles.active=${APP_PROFILE:test}
+
+spring.jpa.open-in-view=false
+```
+#### Arquivo system.properties
+```
+java.runtime.version=11
+```
