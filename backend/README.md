@@ -454,3 +454,363 @@ spring.h2.console.path=/h2-console
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 ```
+## Estruturando as camadas do projeto
+
+### Repositorio Vendedor
+
+- No package `com.sds.sds5` criar um novo package de nome `repositories` e dentro dele criar uma Interface de nome `SellerRepository` . 
+
+```java
+package com.sds.sds5.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.sds.sds5.entities.Seller;
+
+public interface SellerRepository extends JpaRepository<Seller, Long>{
+
+}
+```
+
+### Serviço Vendedor
+
+- No package `com.sds.sds5` criar um novo package de nome `services` e dentro dele criar uma Class de nome `SellerService` . 
+
+```java
+package com.sds.sds5.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sds.sds5.entities.Seller;
+import com.sds.sds5.repositories.SellerRepository;
+
+@Service
+public class SellerService {
+	
+	@Autowired
+	private SellerRepository repository;
+	
+	public List<Seller> findAll() {
+		return repository.findAll();
+	}
+}
+```
+
+### DTO Vendedor
+
+- No package `com.sds.sds5` criar um novo package de nome `dto` e dentro dele criar uma Class de nome `SellerDTO` . 
+
+```java
+package com.sds.sds5.dto;
+
+import java.io.Serializable;
+
+import com.sds.sds5.entities.Seller;
+
+public class SellerDTO implements Serializable{
+	private static final long serialVersionUID = 1L;
+	private Long id;
+	private String name;
+	
+	public SellerDTO() {
+	}
+
+	public SellerDTO(Long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+	
+	public SellerDTO(Seller entity) {
+		id = entity.getId();
+		name = entity.getName();
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+}
+```
+- Alterar o service de vendedor para SellerDTO fazendo as importações necessarias
+
+```java
+package com.sds.sds5.services;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sds.sds5.dto.SellerDTO;
+import com.sds.sds5.entities.Seller;
+import com.sds.sds5.repositories.SellerRepository;
+
+@Service
+public class SellerService {
+	
+	@Autowired
+	private SellerRepository repository;
+	
+	public List<SellerDTO> findAll() {
+		List<Seller> result = repository.findAll();
+		return result.stream().map(x -> new SellerDTO(x)).collect(Collectors.toList());
+	}
+}
+```
+
+### Controller Vendedor
+
+- No package `com.sds.sds5` criar um novo package de nome `controllers` e dentro dele criar uma Class de nome `SellerController` .
+
+```java
+package com.sds.sds5.controllers;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sds.sds5.dto.SellerDTO;
+import com.sds.sds5.services.SellerService;
+
+@RestController
+@RequestMapping(value = "/sellers")
+public class SellerController {
+	
+	@Autowired
+	private SellerService service;
+	
+	@GetMapping
+	public ResponseEntity<List<SellerDTO>> findAll() {
+		List<SellerDTO> list = service.findAll();
+		return ResponseEntity.ok(list);
+	}
+}
+```
+### Repositorio Venda
+
+- No package `com.sds.sds5.repositories` criar uma Interface de nome `SaleRepository` . 
+
+```java
+package com.sds.sds5.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.sds.sds5.entities.Sale;
+
+public interface SaleRepository extends JpaRepository<Sale, Long>{
+
+}
+```
+
+### Serviço Venda
+
+- No package `com.sds.sds5.services` criar uma Class de nome `SaleService` . 
+
+```java
+package com.sds.sds5.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.sds.sds5.dto.SaleDTO;
+import com.sds.sds5.entities.Sale;
+import com.sds.sds5.repositories.SaleRepository;
+
+@Service
+public class SaleService {
+	
+	@Autowired
+	private SaleRepository repository;
+	
+	public Page<SaleDTO> findAll(Pageable pegeable) {
+		Page<Sale> result = repository.findAll(pegeable);
+		return result.map(x -> new SaleDTO(x));
+	}
+}
+
+```
+
+### DTO Venda
+
+- No package `com.sds.sds5.dto` criar uma Class de nome `SaleDTO` .
+
+```java
+package com.sds.sds5.dto;
+
+import java.time.LocalDate;
+
+import com.sds.sds5.entities.Sale;
+
+public class SaleDTO {
+	private Long id;
+	private Integer visited;
+	private Integer deals;
+	private Double amount;
+	private LocalDate date;
+	
+	private SellerDTO seller;
+	
+	public SaleDTO() {
+		
+	}
+
+	public SaleDTO(Long id, Integer visited, Integer deals, Double amount, LocalDate date, SellerDTO seller) {
+		this.id = id;
+		this.visited = visited;
+		this.deals = deals;
+		this.amount = amount;
+		this.date = date;
+		this.seller = seller;
+	}
+	
+	public SaleDTO(Sale entity) {
+		id = entity.getId();
+		visited = entity.getVisited();
+		deals = entity.getDeals();
+		amount = entity.getAmount();
+		date = entity.getDate();
+		seller = new SellerDTO(entity.getSeller());
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Integer getVisited() {
+		return visited;
+	}
+
+	public void setVisited(Integer visited) {
+		this.visited = visited;
+	}
+
+	public Integer getDeals() {
+		return deals;
+	}
+
+	public void setDeals(Integer deals) {
+		this.deals = deals;
+	}
+
+	public Double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
+	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
+
+	public SellerDTO getSeller() {
+		return seller;
+	}
+
+	public void setSeller(SellerDTO seller) {
+		this.seller = seller;
+	}
+}
+
+```
+
+### Controller Venda
+
+- No package `com.sds.sds5.controllers` Class de nome `SaleController` .
+
+```java
+package com.sds.sds5.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sds.sds5.dto.SaleDTO;
+import com.sds.sds5.services.SaleService;
+
+@RestController
+@RequestMapping(value = "/sales")
+public class SaleController {
+	
+	@Autowired
+	private SaleService service;
+	
+	@GetMapping
+	public ResponseEntity<Page<SaleDTO>> findAll(Pageable pegeable) {
+		Page<SaleDTO> list = service.findAll(pegeable);
+		return ResponseEntity.ok(list);
+	}
+}
+```
+
+## Correção das buscas repetidas ao banco de dados
+
+- No arquivo `SaleService` adicionar os seguintes codigos 
+
+```java
+package com.sds.sds5.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.sds.sds5.dto.SaleDTO;
+import com.sds.sds5.entities.Sale;
+import com.sds.sds5.repositories.SaleRepository;
+import com.sds.sds5.repositories.SellerRepository;
+
+@Service
+public class SaleService {
+	
+	@Autowired
+	private SaleRepository repository;
+	
+	@Autowired
+	private SellerRepository sellerRepository;
+	
+	@Transactional(readOnly = true)
+	public Page<SaleDTO> findAll(Pageable pegeable) {
+		sellerRepository.findAll();
+		Page<Sale> result = repository.findAll(pegeable);
+		return result.map(x -> new SaleDTO(x));
+	}
+}
+```
